@@ -8,7 +8,7 @@ public class Enemy extends Ship {
 	EnemyAbility[] abilities;
 	int[] abilityFrames;
 	
-	public static int maxEnemies = 100;
+	public static int maxEnemies = 10;
 	public static int currentEnemies = maxEnemies;
 	
 	public Enemy() {
@@ -36,7 +36,7 @@ public class Enemy extends Ship {
 		switch (clazz) {
 			case INTERCEPTOR:
 				maxReload = 600;
-				maxSpeed = 5;
+				maxSpeed = 8;
 				turnSpeed = 2;
 				abilities[0] = EnemyAbility.FIRST_RESPONSE;
 				abilities[1] = EnemyAbility.SPEED_BOOST;
@@ -66,7 +66,7 @@ public class Enemy extends Ship {
 			visualAngle = Math.floorMod(angleToPlayer, 360);
 		}
 		
-		if (distanceToPlayer < 100) {
+		if (distanceToPlayer < 50) {
 			xAccel = 0;
 			yAccel = 0;
 		}

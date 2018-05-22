@@ -22,13 +22,13 @@ public class Main extends Application {
 	public static double xMousePos, yMousePos;
 	public static double xOffset = -500;
 	public static double yOffset = -300;
+	public static int cd = 0;
 	
 	public void start(Stage primaryStage) throws Exception {
 		Group root = new Group();
 		Scene scene = new Scene(root, 1000, 600);
 		
 		Player.Player().create();
-		Player.Player().keyboardMode = false;
 		Player.Player().setDebug(false);
 		root.getChildren().addAll(Player.Player().getNodes());
 		
@@ -37,6 +37,7 @@ public class Main extends Application {
 		
 		Enemy[] enemyArray = new Enemy[Enemy.maxEnemies];
 		ArrayList<Projectile> bulletArray = new ArrayList<>();
+		ArrayList<Missile> missileArray = new ArrayList<>();
 		
 		for (int i = 0; i < enemyArray.length; i++) {
 			Enemy e = new Enemy();
@@ -49,59 +50,6 @@ public class Main extends Application {
 			root.getChildren().addAll(e.getNodes());
 		}
 		
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			
-			@Override
-			public void handle(KeyEvent event) {
-				switch (event.getCode()) {
-					case S:
-						Methods.saveGameState();
-						break;
-					case R:
-						for (int i = 0; i < Chunk.allSaves.length; i++) {
-							if (Chunk.allSaves[i] != null) {
-								Chunk.allSaves[i].delete();
-								Chunk.allSaves[i] = null;
-							}
-						}
-						break;
-					case LEFT:
-						Player.Player().turnLeft = true;
-						break;
-					case RIGHT:
-						Player.Player().turnRight = true;
-						break;
-					case UP:
-						Player.Player().accelerating = true;
-						break;
-					case SPACE:
-						Player.Player().shooting = true;
-						break;
-				}
-			}
-		});
-		
-		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-			
-			@Override
-			public void handle(KeyEvent event) {
-				switch (event.getCode()) {
-					case LEFT:
-						Player.Player().turnLeft = false;
-						break;
-					case RIGHT:
-						Player.Player().turnRight = false;
-						break;
-					case UP:
-						Player.Player().accelerating = false;
-						break;
-					case SPACE:
-						Player.Player().shooting = false;
-						break;
-				}
-			}
-		});
-		
 		Methods.loadInitialChunks(2, 2, root);
 		
 		AnimationTimer timer = new AnimationTimer() {
@@ -113,13 +61,14 @@ public class Main extends Application {
 				
 				if (Player.Player().keyboardMode) {
 					if (Player.Player().turnLeft) {
-						Player.Player().visualAngle -= 2;
+						Player.Player().visualAngle -= 3;
 					}
 					if (Player.Player().turnRight) {
-						Player.Player().visualAngle += 2;
+						Player.Player().visualAngle += 3;
 					}
 				} else {
-					Player.Player().calculateVisualAngle(xMousePos, yMousePos);
+					if(!Player.keyboardMode)
+						Player.Player().calculateVisualAngle(xMousePos, yMousePos);
 				}
 				if (Player.Player().accelerating) {
 					Player.Player().changeAccel(0.005, Player.Player().visualAngle);
@@ -140,12 +89,17 @@ public class Main extends Application {
 				Methods.offsetScreen(Player.Player());
 				
 				if (Player.Player().fireBullet() && Player.Player().shooting) {
-					Projectile p = Projectile.getAvailable();
-					bulletArray.add(p);
-					p.create(Player.Player(), null, 30, 0);
-					p.body.setVisible(true);
-					root.getChildren().add(p.body);
+					if(cd<=0){
+						Missile p = Missile.getAvailable();
+						missileArray.add(p);
+						p.create(Player.Player(), null, 10, 0);
+						p.body.setVisible(true);
+						root.getChildren().add(p.body);
+						cd=10;
+					}
 				}
+
+				if(cd>-3)cd--;
 				
 				while (true) {
 					int tempX = Chunk.shiftXAxis(Player.Player().xPos, Player.Player().xCurrent, Player.Player().yCurrent, root);
@@ -214,6 +168,33 @@ public class Main extends Application {
 						}
 					}
 				}
+
+				for (int i = missileArray.size() - 1; i >= 0; i--) {
+					Missile current = missileArray.get(i);
+					current.update(xOffset, yOffset);
+					current.body.toBack();
+					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
+						current.body.setVisible(false);
+						root.getChildren().remove(current.body);
+						Missile.unusedBullets.push(current);
+						missileArray.remove(i);
+						continue;
+					}
+					for (int j = enemyArray.length - 1; j >= 0; j--) {
+						if (enemyArray[j] != null && current.body.getBoundsInParent().intersects(enemyArray[j].body.getBoundsInParent()) && current.home == null) {
+							Methods.setNodesVisible(false, enemyArray[j].getNodes());
+							enemyArray[j] = null;
+							current.body.setVisible(false);
+							root.getChildren().remove(current.body);
+							Missile.unusedBullets.push(current);
+							missileArray.remove(i);
+							Enemy.currentEnemies--;
+							System.out.println(Enemy.currentEnemies);
+							break;
+						}
+					}
+				}
+
 				for (int i = bulletArray.size() - 1; i >= 0; i--) {
 					Projectile current = bulletArray.get(i);
 					current.update(xOffset, yOffset);

@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -13,8 +14,10 @@ import javafx.scene.shape.Rectangle;
 import java.util.Arrays;
 
 public class Player extends Ship {
+
 	long inGameFrames;
-	boolean shooting, keyboardMode, turnLeft, turnRight;
+	boolean shooting, turnLeft, turnRight;
+	static boolean keyboardMode = true;
 	Rectangle bounds;
 	
 	private static Player instance = null;
@@ -48,22 +51,24 @@ public class Player extends Ship {
 	}
 	
 	public void calculateVisualAngle(double xMouse, double yMouse) {
-		double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),
-																				xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5))
-																				+ Math.PI / 2.0;
-		int tempAngle = Math.floorMod((int) Math.round(Math.toDegrees(tempTargetAngle)), 360);
-		
-		if (Math.abs(Math.floorMod(tempAngle - visualAngle, 360)) <= 2) {
-			visualAngle = tempAngle;
+		if(!keyboardMode){
+			double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),
+																					xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5))
+																					+ Math.PI / 2.0;
+			int tempAngle = Math.floorMod((int) Math.round(Math.toDegrees(tempTargetAngle)), 360);
+			
+			if (Math.abs(Math.floorMod(tempAngle - visualAngle, 360)) <= 3) {
+				visualAngle = tempAngle;
+			}
+			
+			if (Math.abs(tempAngle - visualAngle) > 180) {
+				visualAngle -= visualAngle < tempAngle ? 3 : (visualAngle > tempAngle ? -3 : 0);
+			} else {
+				visualAngle += visualAngle < tempAngle ? 3 : (visualAngle > tempAngle ? -3 : 0);
+			}
+			
+			visualAngle = Math.floorMod(visualAngle, 360);
 		}
-		
-		if (Math.abs(tempAngle - visualAngle) > 180) {
-			visualAngle -= visualAngle < tempAngle ? 2 : (visualAngle > tempAngle ? -2 : 0);
-		} else {
-			visualAngle += visualAngle < tempAngle ? 2 : (visualAngle > tempAngle ? -2 : 0);
-		}
-		
-		visualAngle = Math.floorMod(visualAngle, 360);
 	}
 	
 	public Node[] getNodes() {
@@ -88,12 +93,15 @@ public class Player extends Ship {
 		scene.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			
 			@Override
+
 			public void handle(MouseEvent event) {
-				if (event.getButton() == MouseButton.PRIMARY) {
-					Player().accelerating = true;
-				} else if (event.getButton() == MouseButton.SECONDARY) {
-					Player().shooting = true;
-				}
+
+					if (event.getButton() == MouseButton.PRIMARY && !keyboardMode) {
+						Player().accelerating = true;
+						System.out.println(keyboardMode);
+					} else if (event.getButton() == MouseButton.SECONDARY && !keyboardMode) {
+						Player().shooting = true;
+					}
 			}
 		});
 		
@@ -101,10 +109,12 @@ public class Player extends Ship {
 			
 			@Override
 			public void handle(MouseEvent event) {
-				if (event.getButton() == MouseButton.PRIMARY) {
-					Player().accelerating = false;
-				} else if (event.getButton() == MouseButton.SECONDARY) {
-					Player().shooting = false;
+				if(!keyboardMode){
+					if (event.getButton() == MouseButton.PRIMARY) {
+						Player().accelerating = false;
+					} else if (event.getButton() == MouseButton.SECONDARY) {
+						Player().shooting = false;
+					}
 				}
 			}
 		});
@@ -113,8 +123,10 @@ public class Player extends Ship {
 			@Override
 			
 			public void handle(MouseEvent event) {
-				Main.xMousePos = event.getX();
-				Main.yMousePos = event.getY();
+				if(!keyboardMode){
+					Main.xMousePos = event.getX();
+					Main.yMousePos = event.getY();
+				}
 			}
 		});
 		
@@ -122,8 +134,66 @@ public class Player extends Ship {
 			@Override
 			
 			public void handle(MouseEvent event) {
-				Main.xMousePos = event.getX();
-				Main.yMousePos = event.getY();
+				if(!keyboardMode){
+					Main.xMousePos = event.getX();
+					Main.yMousePos = event.getY();
+				}
+			}
+		});
+
+		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			
+			@Override
+			public void handle(KeyEvent event) {
+					switch (event.getCode()) {
+						case S:
+							Methods.saveGameState();
+							break;
+						case R:
+							for (int i = 0; i < Chunk.allSaves.length; i++) {
+								if (Chunk.allSaves[i] != null) {
+									Chunk.allSaves[i].delete();
+									Chunk.allSaves[i] = null;
+								}
+							}
+							break;
+						case LEFT:
+							if (Player.Player().keyboardMode) Player().turnLeft = true;
+							break;
+						case RIGHT:
+							if (Player.Player().keyboardMode) Player().turnRight = true;
+							break;
+						case UP:
+							if (Player.Player().keyboardMode) Player().accelerating = true;
+							break;
+						case SPACE:
+							if (Player.Player().keyboardMode) Player().shooting = true;
+							break;
+						case K:
+							if(!keyboardMode)keyboardMode=true; else keyboardMode=false;
+							break;
+					}
+			}
+		});
+		
+		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
+			
+			@Override
+			public void handle(KeyEvent event) {
+					switch (event.getCode()) {
+						case LEFT:
+							Player.Player().turnLeft = false;
+							break;
+						case RIGHT:
+							Player.Player().turnRight = false;
+							break;
+						case UP:
+							Player.Player().accelerating = false;
+							break;
+						case SPACE:
+							Player.Player().shooting = false;
+							break;
+					}
 			}
 		});
 		
