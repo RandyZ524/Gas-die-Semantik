@@ -22,7 +22,8 @@ public class Main extends Application {
 	public static double xMousePos, yMousePos;
 	public static double xOffset = -500;
 	public static double yOffset = -300;
-	public static int cd = 0;
+	public static int mcd = 0;
+	public static int pcd = 0;
 	
 	public void start(Stage primaryStage) throws Exception {
 		Group root = new Group();
@@ -89,17 +90,29 @@ public class Main extends Application {
 				Methods.offsetScreen(Player.Player());
 				
 				if (Player.Player().fireBullet() && Player.Player().shooting) {
-					if(cd<=0){
-						Missile p = Missile.getAvailable();
-						missileArray.add(p);
-						p.create(Player.Player(), null, 10, 0);
+					if(pcd<=0){
+						Projectile p = Projectile.getAvailable();
+						bulletArray.add(p);
+						p.create(Player.Player(), null, 30, 0);
 						p.body.setVisible(true);
 						root.getChildren().add(p.body);
-						cd=10;
+						pcd=3;
 					}
 				}
 
-				if(cd>-3)cd--;
+				if (Player.Player().fireBullet() && Player.Player().missileShooting) {
+					if(mcd<=0){
+						Missile p = Missile.getAvailable();
+						missileArray.add(p);
+						p.create(Player.Player(), null, 10, 7);
+						p.body.setVisible(true);
+						root.getChildren().add(p.body);
+						mcd=10;
+					}
+				}
+
+				if(mcd>-3)mcd--;
+				if(pcd>-3)pcd--;
 				
 				while (true) {
 					int tempX = Chunk.shiftXAxis(Player.Player().xPos, Player.Player().xCurrent, Player.Player().yCurrent, root);

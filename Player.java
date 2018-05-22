@@ -16,7 +16,7 @@ import java.util.Arrays;
 public class Player extends Ship {
 
 	long inGameFrames;
-	boolean shooting, turnLeft, turnRight;
+	boolean shooting, missileShooting, turnLeft, turnRight;
 	static boolean keyboardMode = true;
 	Rectangle bounds;
 	
@@ -166,8 +166,11 @@ public class Player extends Ship {
 						case UP:
 							if (Player.Player().keyboardMode) Player().accelerating = true;
 							break;
-						case SPACE:
+						case Z:
 							if (Player.Player().keyboardMode) Player().shooting = true;
+							break;
+						case X:
+							if (Player.Player().keyboardMode) Player().missileShooting = true;
 							break;
 						case K:
 							if(!keyboardMode)keyboardMode=true; else keyboardMode=false;
@@ -190,8 +193,11 @@ public class Player extends Ship {
 						case UP:
 							Player.Player().accelerating = false;
 							break;
-						case SPACE:
+						case Z:
 							Player.Player().shooting = false;
+							break;
+						case X:
+							Player.Player().missileShooting = false;
 							break;
 					}
 			}
