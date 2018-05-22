@@ -2,7 +2,9 @@ import javafx.scene.image.Image;
 
 public class Enemy extends Ship {
 	int angleToPlayer;
-	int health = 50;
+	int ecd = 0;
+	int cooldown = 8;
+	int health = 25;
 	double detectionRange;
 	Civilization home;
 	EnemyType clazz;
@@ -96,6 +98,7 @@ public class Enemy extends Ship {
 					case SPEED_BOOST:
 						maxSpeed <<= 1;
 						turnSpeed <<= 1;
+						cooldown = 2;
 						body.setImage(new Image("enemy_boosting.png"));
 						break;
 				}

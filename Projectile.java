@@ -23,13 +23,15 @@ public class Projectile {
 		body = new ImageView();
 	}
 	
-	public void create(Ship owner, Civilization source, double speed, int spread, int damage) {
+	public void create(Ship owner, Civilization source, double speed, int spread, int damage, String src) {
 		
 		if (spread == 0) {
 			angle = owner.visualAngle;
 		} else {
 			angle = Methods.randInt(owner.visualAngle - spread, owner.visualAngle + spread);
 		}
+
+		this.damage = damage;
 		
 		penetration = 1;
 		maxLifeTime = 120;
@@ -39,18 +41,20 @@ public class Projectile {
 		diagVelocity = speed;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
-		body.setImage(new Image("laser_bullet.png"));
+		body.setImage(new Image(src));
 		body.setRotate(angle);
 		home = source;
 	}
 
-	public void create(Ship owner, int offSet, Civilization source, double speed, int spread, int damage) {
+	public void create(Ship owner, int offSet, Civilization source, double speed, int spread, int damage, String src) {
 		
 		if (spread == 0) {
 			angle = owner.visualAngle + offSet;
 		} else {
-			angle = Methods.randInt(owner.visualAngle - spread, owner.visualAngle + spread);
+			angle = Methods.randInt(owner.visualAngle + offSet - spread, owner.visualAngle + offSet + spread);
 		}
+
+		this.damage = damage;
 		
 		penetration = 1;
 		maxLifeTime = 120;
@@ -60,7 +64,7 @@ public class Projectile {
 		diagVelocity = speed;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
-		body.setImage(new Image("laser_bullet.png"));
+		body.setImage(new Image(src));
 		body.setRotate(angle);
 		home = source;
 	}

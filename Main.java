@@ -24,6 +24,7 @@ public class Main extends Application {
 	public static double yOffset = -300;
 	public static int mcd = 0;
 	public static int pcd = 0;
+	public static int scd = 0;
 	
 	public void start(Stage primaryStage) throws Exception {
 		Group root = new Group();
@@ -95,18 +96,41 @@ public class Main extends Application {
 						Projectile p = Projectile.getAvailable();
 						Projectile q = Projectile.getAvailable();
 						Projectile r = Projectile.getAvailable();
+						Projectile s = Projectile.getAvailable();
 						bulletArray.add(p);
 						bulletArray.add(q);
 						bulletArray.add(r);
-						p.create(Player.Player(), 8, null, 20, 0, 2);
-						q.create(Player.Player(), null, 20, 0,2);
-						r.create(Player.Player(), -8, null, 20, 0,2);
+						bulletArray.add(s);
+						p.create(Player.Player(), 12, null, 17, 0, 2, "laser_bullet.png");
+						q.create(Player.Player(), 4, null, 20, 0,5, "laser_bullet.png");
+						r.create(Player.Player(), -4, null, 20, 0,5, "laser_bullet.png");
+						s.create(Player.Player(), -12, null, 17, 0,2, "laser_bullet.png");
 						p.body.setVisible(true);
 						q.body.setVisible(true);
 						r.body.setVisible(true);
-						root.getChildren().addAll(p.body, q.body, r.body);
-						pcd=3;
+						s.body.setVisible(true);
+						root.getChildren().addAll(p.body, q.body, r.body, s.body);
+						pcd=10;
 					}
+				}
+
+				if (Player.Player().fireBullet() && Player.Player().shootingSniper) {
+					if(scd<=0){
+						Projectile p = Projectile.getAvailable();
+						bulletArray.add(p);
+						p.create(Player.Player(), null, 40, 0, 50, "sniper_bullet.png");
+						p.body.setVisible(true);
+						root.getChildren().add(p.body);
+						scd=30;
+					}
+				}
+
+				if (Player.Player().fireBullet() && Player.Player().shootingRapid) {
+					Projectile p = Projectile.getAvailable();
+					bulletArray.add(p);
+					p.create(Player.Player(), null, 13+Math.floor(Math.random() * Math.floor(6)), 8, 1, "wave.png");
+					p.body.setVisible(true);
+					root.getChildren().add(p.body);
 				}
 
 				if (Player.Player().fireBullet() && Player.Player().missileShooting) {
@@ -122,6 +146,7 @@ public class Main extends Application {
 
 				if(mcd>-3)mcd--;
 				if(pcd>-3)pcd--;
+				if(scd>-3)scd--;
 				
 				while (true) {
 					int tempX = Chunk.shiftXAxis(Player.Player().xPos, Player.Player().xCurrent, Player.Player().yCurrent, root);
@@ -159,13 +184,16 @@ public class Main extends Application {
 						
 						e.update(xOffset, yOffset);
 						
-						if (e.lockedToPlayer() & e.fireBullet()) {
+						if (e.lockedToPlayer() & e.fireBullet() & e.ecd <=0) {
 							Projectile p = Projectile.getAvailable();
 							bulletArray.add(p);
-							p.create(e, new Civilization(), 10, 5, 2);
+							p.create(e, new Civilization(), 10, 5, 2, "laser_bullet.png");
 							p.body.setVisible(true);
 							root.getChildren().add(p.body);
+							e.ecd = e.cooldown;
 						}
+
+						if(e.ecd > -5) e.ecd--;
 						
 						if (Player.Player().inGameFrames % 600 == 0) {
 							e.activateAbilities();
@@ -183,6 +211,7 @@ public class Main extends Application {
 									case SPEED_BOOST:
 										e.maxSpeed >>= 1;
 										e.turnSpeed >>= 1;
+										e.cooldown = 8;
 										e.body.setImage(new Image("enemy.png"));
 										break;
 								}
@@ -196,8 +225,10 @@ public class Main extends Application {
 					current.update(xOffset, yOffset);
 					current.body.toBack();
 					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
-						Player.Player().health-=current.damage;
-						System.out.println(Player.Player().health);
+						if((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null)){
+							Player.Player().health-=current.damage;
+							System.out.println(Player.Player().health);
+						}
 						current.body.setVisible(false);
 						root.getChildren().remove(current.body);
 						Missile.unusedBullets.push(current);
@@ -228,8 +259,10 @@ public class Main extends Application {
 					current.update(xOffset, yOffset);
 					current.body.toBack();
 					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
-						Player.Player().health-=current.damage;
-						System.out.println(Player.Player().health);
+						if((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null)){
+							Player.Player().health-=current.damage;
+							System.out.println(Player.Player().health);
+						}
 						current.body.setVisible(false);
 						root.getChildren().remove(current.body);
 						Projectile.unusedBullets.push(current);

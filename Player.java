@@ -18,7 +18,7 @@ public class Player extends Ship {
 	int health = 1000;
 
 	long inGameFrames;
-	boolean shooting, missileShooting, turnLeft, turnRight;
+	boolean shooting, missileShooting, shootingSniper, turnLeft, turnRight, shootingRapid;
 	static boolean keyboardMode = true;
 	Rectangle bounds;
 	
@@ -173,6 +173,12 @@ public class Player extends Ship {
 						case K:
 							if(!keyboardMode)keyboardMode=true; else keyboardMode=false;
 							break;
+						case C:
+							Player().shootingSniper = true;
+							break;
+						case V:
+							Player().shootingRapid = true;
+							break;
 					}
 			}
 		});
@@ -196,6 +202,12 @@ public class Player extends Ship {
 							break;
 						case X:
 							Player.Player().missileShooting = false;
+							break;
+						case C:
+							Player().shootingSniper = false;
+							break;
+						case V:
+							Player().shootingRapid = false;
 							break;
 					}
 			}
