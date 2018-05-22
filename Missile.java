@@ -23,7 +23,7 @@ public class Missile {
 		body = new ImageView();
 	}
 	
-	public void create(Ship owner, Civilization source, double speed, int spread) {
+	public void create(Ship owner, Civilization source, double speed, int spread, int damage) {
 		
 		if (spread == 0) {
 			angle = owner.visualAngle;

@@ -57,6 +57,7 @@ public class Main extends Application {
 			@Override
 			
 			public void handle(long now) {
+				if(Player.Player().health <= 0) System.exit(0);
 				Player.Player().inGameFrames++;
 				Player.Player().calculateVelocityAngle();
 				
@@ -97,9 +98,9 @@ public class Main extends Application {
 						bulletArray.add(p);
 						bulletArray.add(q);
 						bulletArray.add(r);
-						p.create(Player.Player(), 8, null, 20, 0);
-						q.create(Player.Player(), null, 20, 0);
-						r.create(Player.Player(), -8, null, 20, 0);
+						p.create(Player.Player(), 8, null, 20, 0, 2);
+						q.create(Player.Player(), null, 20, 0,2);
+						r.create(Player.Player(), -8, null, 20, 0,2);
 						p.body.setVisible(true);
 						q.body.setVisible(true);
 						r.body.setVisible(true);
@@ -112,7 +113,7 @@ public class Main extends Application {
 					if(mcd<=0){
 						Missile p = Missile.getAvailable();
 						missileArray.add(p);
-						p.create(Player.Player(), null, 10, 7);
+						p.create(Player.Player(), null, 10, 7, 20);
 						p.body.setVisible(true);
 						root.getChildren().add(p.body);
 						mcd=10;
@@ -161,7 +162,7 @@ public class Main extends Application {
 						if (e.lockedToPlayer() & e.fireBullet()) {
 							Projectile p = Projectile.getAvailable();
 							bulletArray.add(p);
-							p.create(e, new Civilization(), 10, 5);
+							p.create(e, new Civilization(), 10, 5, 2);
 							p.body.setVisible(true);
 							root.getChildren().add(p.body);
 						}
@@ -195,6 +196,8 @@ public class Main extends Application {
 					current.update(xOffset, yOffset);
 					current.body.toBack();
 					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
+						Player.Player().health-=current.damage;
+						System.out.println(Player.Player().health);
 						current.body.setVisible(false);
 						root.getChildren().remove(current.body);
 						Missile.unusedBullets.push(current);
@@ -214,7 +217,7 @@ public class Main extends Application {
 							root.getChildren().remove(current.body);
 							Missile.unusedBullets.push(current);
 							missileArray.remove(i);
-							System.out.println(Enemy.currentEnemies);
+//							System.out.println(Enemy.currentEnemies);
 							break;
 						}
 					}
@@ -225,6 +228,8 @@ public class Main extends Application {
 					current.update(xOffset, yOffset);
 					current.body.toBack();
 					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
+						Player.Player().health-=current.damage;
+						System.out.println(Player.Player().health);
 						current.body.setVisible(false);
 						root.getChildren().remove(current.body);
 						Projectile.unusedBullets.push(current);
@@ -244,7 +249,7 @@ public class Main extends Application {
 							root.getChildren().remove(current.body);
 							Projectile.unusedBullets.push(current);
 							bulletArray.remove(i);
-							System.out.println(Enemy.currentEnemies);
+//							System.out.println(Enemy.currentEnemies);
 							break;
 						}
 					}

@@ -15,6 +15,8 @@ import java.util.Arrays;
 
 public class Player extends Ship {
 
+	int health = 1000;
+
 	long inGameFrames;
 	boolean shooting, missileShooting, turnLeft, turnRight;
 	static boolean keyboardMode = true;
@@ -52,9 +54,7 @@ public class Player extends Ship {
 	
 	public void calculateVisualAngle(double xMouse, double yMouse) {
 		if(!keyboardMode){
-			double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),
-																					xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5))
-																					+ Math.PI / 2.0;
+			double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5)) + Math.PI / 2.0;
 			int tempAngle = Math.floorMod((int) Math.round(Math.toDegrees(tempTargetAngle)), 360);
 			
 			if (Math.abs(Math.floorMod(tempAngle - visualAngle, 360)) <= 3) {
