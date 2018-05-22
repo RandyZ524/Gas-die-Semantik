@@ -1,1 +1,0 @@
-# der-Kampf-der-Semantik
