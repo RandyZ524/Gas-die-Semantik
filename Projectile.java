@@ -6,6 +6,7 @@ import java.util.Deque;
 
 public class Projectile {
 	int angle, penetration, maxLifeTime, lifeTimeFrames;
+	int damage = 5;
 	double diagVelocity, xVelocity, yVelocity, xPos, yPos;
 	BulletSize size;
 	ImageView body;

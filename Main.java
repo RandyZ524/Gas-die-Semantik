@@ -195,13 +195,17 @@ public class Main extends Application {
 					}
 					for (int j = enemyArray.length - 1; j >= 0; j--) {
 						if (enemyArray[j] != null && current.body.getBoundsInParent().intersects(enemyArray[j].body.getBoundsInParent()) && current.home == null) {
-							Methods.setNodesVisible(false, enemyArray[j].getNodes());
-							enemyArray[j] = null;
+							
+							if(enemyArray[j].health - current.damage <= 0){
+								Methods.setNodesVisible(false, enemyArray[j].getNodes());
+								enemyArray[j] = null;
+								Enemy.currentEnemies--;
+							}else
+								enemyArray[j].health-=current.damage;
 							current.body.setVisible(false);
 							root.getChildren().remove(current.body);
 							Missile.unusedBullets.push(current);
 							missileArray.remove(i);
-							Enemy.currentEnemies--;
 							System.out.println(Enemy.currentEnemies);
 							break;
 						}
@@ -221,13 +225,17 @@ public class Main extends Application {
 					}
 					for (int j = enemyArray.length - 1; j >= 0; j--) {
 						if (enemyArray[j] != null && current.body.getBoundsInParent().intersects(enemyArray[j].body.getBoundsInParent()) && current.home == null) {
-							Methods.setNodesVisible(false, enemyArray[j].getNodes());
-							enemyArray[j] = null;
+							
+							if(enemyArray[j].health - current.damage <= 0){
+								Methods.setNodesVisible(false, enemyArray[j].getNodes());
+								enemyArray[j] = null;
+								Enemy.currentEnemies--;
+							}else
+								enemyArray[j].health-=current.damage;
 							current.body.setVisible(false);
 							root.getChildren().remove(current.body);
 							Projectile.unusedBullets.push(current);
 							bulletArray.remove(i);
-							Enemy.currentEnemies--;
 							System.out.println(Enemy.currentEnemies);
 							break;
 						}

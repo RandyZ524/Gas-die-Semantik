@@ -2,6 +2,7 @@ import javafx.scene.image.Image;
 
 public class Enemy extends Ship {
 	int angleToPlayer;
+	int health = 50;
 	double detectionRange;
 	Civilization home;
 	EnemyType clazz;

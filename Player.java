@@ -112,8 +112,6 @@ public class Player extends Ship {
 				if(!keyboardMode){
 					if (event.getButton() == MouseButton.PRIMARY) {
 						Player().accelerating = false;
-					} else if (event.getButton() == MouseButton.SECONDARY) {
-						Player().shooting = false;
 					}
 				}
 			}
@@ -167,10 +165,10 @@ public class Player extends Ship {
 							if (Player.Player().keyboardMode) Player().accelerating = true;
 							break;
 						case Z:
-							if (Player.Player().keyboardMode) Player().shooting = true;
+							Player().shooting = true;
 							break;
 						case X:
-							if (Player.Player().keyboardMode) Player().missileShooting = true;
+							Player().missileShooting = true;
 							break;
 						case K:
 							if(!keyboardMode)keyboardMode=true; else keyboardMode=false;

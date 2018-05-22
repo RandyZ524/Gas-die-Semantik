@@ -6,6 +6,7 @@ import java.util.Deque;
 
 public class Missile {
 	int angle, penetration, maxLifeTime, lifeTimeFrames;
+	int damage = 20;
 	double diagVelocity, xVelocity, yVelocity, xPos, yPos, accel;
 	BulletSize size;
 	ImageView body;
