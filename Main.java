@@ -92,10 +92,18 @@ public class Main extends Application {
 				if (Player.Player().fireBullet() && Player.Player().shooting) {
 					if(pcd<=0){
 						Projectile p = Projectile.getAvailable();
+						Projectile q = Projectile.getAvailable();
+						Projectile r = Projectile.getAvailable();
 						bulletArray.add(p);
-						p.create(Player.Player(), null, 30, 0);
+						bulletArray.add(q);
+						bulletArray.add(r);
+						p.create(Player.Player(), 8, null, 20, 0);
+						q.create(Player.Player(), null, 20, 0);
+						r.create(Player.Player(), -8, null, 20, 0);
 						p.body.setVisible(true);
-						root.getChildren().add(p.body);
+						q.body.setVisible(true);
+						r.body.setVisible(true);
+						root.getChildren().addAll(p.body, q.body, r.body);
 						pcd=3;
 					}
 				}

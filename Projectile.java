@@ -6,7 +6,7 @@ import java.util.Deque;
 
 public class Projectile {
 	int angle, penetration, maxLifeTime, lifeTimeFrames;
-	int damage = 5;
+	int damage = 2;
 	double diagVelocity, xVelocity, yVelocity, xPos, yPos;
 	BulletSize size;
 	ImageView body;
@@ -27,6 +27,27 @@ public class Projectile {
 		
 		if (spread == 0) {
 			angle = owner.visualAngle;
+		} else {
+			angle = Methods.randInt(owner.visualAngle - spread, owner.visualAngle + spread);
+		}
+		
+		penetration = 1;
+		maxLifeTime = 120;
+		lifeTimeFrames = maxLifeTime;
+		xPos = owner.xPos;
+		yPos = owner.yPos;
+		diagVelocity = speed;
+		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
+		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
+		body.setImage(new Image("laser_bullet.png"));
+		body.setRotate(angle);
+		home = source;
+	}
+
+	public void create(Ship owner, int offSet, Civilization source, double speed, int spread) {
+		
+		if (spread == 0) {
+			angle = owner.visualAngle + offSet;
 		} else {
 			angle = Methods.randInt(owner.visualAngle - spread, owner.visualAngle + spread);
 		}

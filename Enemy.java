@@ -9,7 +9,7 @@ public class Enemy extends Ship {
 	EnemyAbility[] abilities;
 	int[] abilityFrames;
 	
-	public static int maxEnemies = 10;
+	public static int maxEnemies = 50;
 	public static int currentEnemies = maxEnemies;
 	
 	public Enemy() {
