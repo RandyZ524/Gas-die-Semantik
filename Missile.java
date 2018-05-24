@@ -40,7 +40,7 @@ public class Missile {
 		diagVelocity = speed;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
-		body.setImage(new Image("arrow_bullet.png"));
+		body.setImage(new Image("missile.gif"));
 		body.setRotate(angle);
 		home = source;
 	}
@@ -51,6 +51,7 @@ public class Missile {
 		xVelocity=accel*xVelocity;
 		yVelocity=accel*yVelocity;
 		accel+=0.002;
+		if(Math.sqrt(Math.pow(xVelocity,2)+Math.pow(yVelocity,2))>55) accel = 1;
 		body.setLayoutX(xPos - 0.5 * body.getLayoutBounds().getWidth() - xOffset);
 		body.setLayoutY(yPos - 0.5 * body.getLayoutBounds().getHeight() - yOffset);
 		lifeTimeFrames--;

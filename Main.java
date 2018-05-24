@@ -9,7 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
+import java.util.concurrent.ThreadLocalRandom;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,15 +18,23 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		Application.launch(args);
 	}
+
+	static String[] stra = new String[4];
 	
 	public static double xMousePos, yMousePos;
 	public static double xOffset = -500;
 	public static double yOffset = -300;
+	public static int rcd = 90;
 	public static int mcd = 0;
 	public static int pcd = 0;
 	public static int scd = 0;
 	
 	public void start(Stage primaryStage) throws Exception {
+		stra[0]="laser_bullet.png";
+		stra[1]="sniper_bullet.png";
+		stra[2]="small_bullet.png";
+		stra[3]="wave.png";
+
 		Group root = new Group();
 		Scene scene = new Scene(root, 1000, 600);
 		
@@ -125,28 +133,39 @@ public class Main extends Application {
 					}
 				}
 
-				if (Player.Player().fireBullet() && Player.Player().shootingRapid) {
+				if (Player.Player().fireBullet() && Player.Player().shootingRapid && rcd == 90) {
+					rcd--;
+				}
+
+
+				if(rcd >= 60 && rcd != 90) {
 					Projectile p = Projectile.getAvailable();
+					Projectile q = Projectile.getAvailable();
+					bulletArray.add(q);
 					bulletArray.add(p);
-					p.create(Player.Player(), null, 13+Math.floor(Math.random() * Math.floor(6)), 8, 1, "wave.png");
+					p.create(Player.Player(), 45, null, 4+Math.floor(Math.random() * Math.floor(17)), 45, 2, "wave.png");
+					q.create(Player.Player(), 315, null, 4+Math.floor(Math.random() * Math.floor(17)), 45, 2, "wave.png");
 					p.body.setVisible(true);
-					root.getChildren().add(p.body);
+					q.body.setVisible(true);
+					root.getChildren().addAll(q.body,p.body);
 				}
 
 				if (Player.Player().fireBullet() && Player.Player().missileShooting) {
 					if(mcd<=0){
 						Missile p = Missile.getAvailable();
 						missileArray.add(p);
-						p.create(Player.Player(), null, 10, 7, 20);
+						p.create(Player.Player(), null, 5, 7, 25);
 						p.body.setVisible(true);
 						root.getChildren().add(p.body);
-						mcd=10;
+						mcd=25;
 					}
 				}
 
 				if(mcd>-3)mcd--;
 				if(pcd>-3)pcd--;
 				if(scd>-3)scd--;
+				if(rcd<90)rcd--;
+				if(rcd==0)rcd=90;
 				
 				while (true) {
 					int tempX = Chunk.shiftXAxis(Player.Player().xPos, Player.Player().xCurrent, Player.Player().yCurrent, root);

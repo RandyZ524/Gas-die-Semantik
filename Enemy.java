@@ -4,14 +4,14 @@ public class Enemy extends Ship {
 	int angleToPlayer;
 	int ecd = 0;
 	int cooldown = 8;
-	int health = 25;
+	int health = 50;
 	double detectionRange;
 	Civilization home;
 	EnemyType clazz;
 	EnemyAbility[] abilities;
 	int[] abilityFrames;
 	
-	public static int maxEnemies = 50;
+	public static int maxEnemies = 10;
 	public static int currentEnemies = maxEnemies;
 	
 	public Enemy() {
