@@ -2,13 +2,16 @@ import javafx.scene.image.Image;
 
 public class Enemy extends Ship {
 	int angleToPlayer;
+	int ecd = 0;
+	int cooldown = 8;
+	int health = /*50*/1;
 	double detectionRange;
 	Civilization home;
 	EnemyType clazz;
 	EnemyAbility[] abilities;
 	int[] abilityFrames;
 	
-	public static int maxEnemies = 10;
+	public static int maxEnemies = 1000;
 	public static int currentEnemies = maxEnemies;
 	
 	public Enemy() {
@@ -36,7 +39,7 @@ public class Enemy extends Ship {
 		switch (clazz) {
 			case INTERCEPTOR:
 				maxReload = 600;
-				maxSpeed = 8;
+				maxSpeed = 6;
 				turnSpeed = 2;
 				abilities[0] = EnemyAbility.FIRST_RESPONSE;
 				abilities[1] = EnemyAbility.SPEED_BOOST;
@@ -47,13 +50,13 @@ public class Enemy extends Ship {
 	}
 	
 	public boolean fireBullet() {
-		reloadFrames--;
+		/*reloadFrames--;
 		
 		if (reloadFrames < 0) {
 			reloadFrames = Enemy.currentEnemies;
 			return true;
 		}
-		
+		*/
 		return false;
 	}
 	
@@ -95,6 +98,7 @@ public class Enemy extends Ship {
 					case SPEED_BOOST:
 						maxSpeed <<= 1;
 						turnSpeed <<= 1;
+						cooldown = 2;
 						body.setImage(new Image("enemy_boosting.png"));
 						break;
 				}

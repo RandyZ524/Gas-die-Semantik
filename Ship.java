@@ -9,10 +9,17 @@ public class Ship {
 	int angle, visualAngle, xCurrent, yCurrent, maxReload, reloadFrames, maxSpeed, turnSpeed;
 	double diagVelocity, diagAccel, xVelocity, yVelocity, xAccel, yAccel, xPos, yPos, resistAccel, health;
 	boolean accelerating;
+	ProjectileData[] projectileArray;
 	ImageView body;
 	Line dVLine, xVLine, yVLine;
 	
 	public Ship() {
+		projectileArray = new ProjectileData[4];
+		
+		for (int i = 0; i < projectileArray.length; i++) {
+			projectileArray[i] = new ProjectileData();
+		}
+		
 		body = new ImageView();
 		dVLine = new Line();
 		xVLine = new Line();
@@ -74,6 +81,16 @@ public class Ship {
 			yVelocity = 0;
 			xAccel = 0;
 			yAccel = 0;
+		}
+		
+	}
+	
+	public void updateProjectilesCooldown() {
+		
+		for (ProjectileData pd : projectileArray) {
+			if (pd.maxReload != -1 && pd.currentReload > 0) {
+				pd.currentReload--;
+			}
 		}
 		
 	}

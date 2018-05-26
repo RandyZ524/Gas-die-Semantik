@@ -15,8 +15,10 @@ import java.util.Arrays;
 
 public class Player extends Ship {
 
+	int health = 1000;
+
 	long inGameFrames;
-	boolean shooting, missileShooting, turnLeft, turnRight;
+	boolean shooting, missileShooting, shootingSniper, turnLeft, turnRight, shootingRapid;
 	static boolean keyboardMode = true;
 	Rectangle bounds;
 	
@@ -42,6 +44,12 @@ public class Player extends Ship {
 		maxReload = 0;
 		reloadFrames = maxReload;
 		maxSpeed = 5;
+		
+		projectileArray[0].maxReload = 10;
+		projectileArray[1].maxReload = 25;
+		projectileArray[2].maxReload = 30;
+		projectileArray[3].maxReload = 90;
+		
 		bounds.setX(400);
 		bounds.setY(200);
 		bounds.setWidth(200);
@@ -52,9 +60,7 @@ public class Player extends Ship {
 	
 	public void calculateVisualAngle(double xMouse, double yMouse) {
 		if(!keyboardMode){
-			double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),
-																					xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5))
-																					+ Math.PI / 2.0;
+			double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5)) + Math.PI / 2.0;
 			int tempAngle = Math.floorMod((int) Math.round(Math.toDegrees(tempTargetAngle)), 360);
 			
 			if (Math.abs(Math.floorMod(tempAngle - visualAngle, 360)) <= 3) {
@@ -112,8 +118,6 @@ public class Player extends Ship {
 				if(!keyboardMode){
 					if (event.getButton() == MouseButton.PRIMARY) {
 						Player().accelerating = false;
-					} else if (event.getButton() == MouseButton.SECONDARY) {
-						Player().shooting = false;
 					}
 				}
 			}
@@ -158,22 +162,34 @@ public class Player extends Ship {
 							}
 							break;
 						case LEFT:
-							if (Player.Player().keyboardMode) Player().turnLeft = true;
+							if (Player().keyboardMode) {
+								Player().turnLeft = true;
+							}
 							break;
 						case RIGHT:
-							if (Player.Player().keyboardMode) Player().turnRight = true;
+							if (Player().keyboardMode) {
+								Player().turnRight = true;
+							}
 							break;
 						case UP:
-							if (Player.Player().keyboardMode) Player().accelerating = true;
+							if (Player().keyboardMode) {
+								Player().accelerating = true;
+							}
 							break;
 						case Z:
-							if (Player.Player().keyboardMode) Player().shooting = true;
+							Player().projectileArray[0].shooting = true;
 							break;
 						case X:
-							if (Player.Player().keyboardMode) Player().missileShooting = true;
+							Player().projectileArray[1].shooting = true;
+							break;
+						case C:
+							Player().projectileArray[2].shooting = true;
+							break;
+						case V:
+							Player().projectileArray[3].shooting = true;
 							break;
 						case K:
-							if(!keyboardMode)keyboardMode=true; else keyboardMode=false;
+							keyboardMode = !keyboardMode;
 							break;
 					}
 			}
@@ -183,23 +199,35 @@ public class Player extends Ship {
 			
 			@Override
 			public void handle(KeyEvent event) {
-					switch (event.getCode()) {
-						case LEFT:
-							Player.Player().turnLeft = false;
-							break;
-						case RIGHT:
-							Player.Player().turnRight = false;
-							break;
-						case UP:
-							Player.Player().accelerating = false;
-							break;
-						case Z:
-							Player.Player().shooting = false;
-							break;
-						case X:
-							Player.Player().missileShooting = false;
-							break;
-					}
+				switch (event.getCode()) {
+					case LEFT:
+						if (Player().keyboardMode) {
+							Player().turnLeft = false;
+						}
+						break;
+					case RIGHT:
+						if (Player().keyboardMode) {
+							Player().turnRight = false;
+						}
+						break;
+					case UP:
+						if (Player().keyboardMode) {
+							Player().accelerating = false;
+						}
+						break;
+					case Z:
+						Player().projectileArray[0].shooting = false;
+						break;
+					case X:
+						Player().projectileArray[1].shooting = false;
+						break;
+					case C:
+						Player().projectileArray[2].shooting = false;
+						break;
+					case V:
+						Player().projectileArray[3].shooting = false;
+						break;
+				}
 			}
 		});
 		
