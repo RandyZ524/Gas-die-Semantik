@@ -13,6 +13,7 @@ import javafx.scene.shape.Rectangle;
 import java.util.concurrent.ThreadLocalRandom;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Main extends Application {
@@ -27,11 +28,6 @@ public class Main extends Application {
 	public static double yOffset = -300;
 	
 	public void start(Stage primaryStage) throws Exception {
-		stra[0] = "laser_bullet.png";
-		stra[1] = "sniper_bullet.png";
-		stra[2] = "small_bullet.png";
-		stra[3] = "wave.png";
-
 		Group root = new Group();
 		Scene scene = new Scene(root, 1000, 600);
 		
@@ -42,13 +38,11 @@ public class Main extends Application {
 		Methods.loadExistingSaves();
 		Player.Player().addMouseEvents(scene);
 		
-		Enemy[] enemyArray = new Enemy[Enemy.maxEnemies];
-		ArrayList<Projectile> bulletArray = new ArrayList<>();
 		ArrayList<Missile> missileArray = new ArrayList<>();
 		
-		for (int i = 0; i < enemyArray.length; i++) {
-			Enemy e = new Enemy();
-			enemyArray[i] = e;
+		for (int i = 0; i < Enemy.maxEnemies; i++) {
+			Enemy e = Enemy.getAvailable();
+			Enemy.inGameEnemies.add(e);
 			e.setClassAttributes("Interceptor");
 			e.create();
 			e.xPos = Methods.randInt(-200, 200) * 10;
@@ -63,7 +57,11 @@ public class Main extends Application {
 			@Override
 			
 			public void handle(long now) {
-				if(Player.Player().health <= 0) System.exit(0);
+				
+				if(Player.Player().health <= 0) {
+					System.exit(0);
+				}
+				
 				Player.Player().inGameFrames++;
 				Player.Player().calculateVelocityAngle();
 				
@@ -71,13 +69,16 @@ public class Main extends Application {
 					if (Player.Player().turnLeft) {
 						Player.Player().visualAngle -= 3;
 					}
+					
 					if (Player.Player().turnRight) {
 						Player.Player().visualAngle += 3;
 					}
 				} else {
-					if(!Player.keyboardMode)
+					if (!Player.keyboardMode) {
 						Player.Player().calculateVisualAngle(xMousePos, yMousePos);
+					}
 				}
+				
 				if (Player.Player().accelerating) {
 					Player.Player().changeAccel(0.005, Player.Player().visualAngle);
 				}
@@ -98,69 +99,29 @@ public class Main extends Application {
 				
 				Player.Player().updateProjectilesCooldown();
 				
-				if (Player.Player().projectileArray[0].shooting && Player.Player().projectileArray[0].currentReload <= 0) {
-					for (int i = -12; i <= 12; i += 8) {
-						int speed;
-						int damage;
-						Projectile p = Projectile.getAvailable();
-						bulletArray.add(p);
-						
-						if (i == 12 || i == -12) {
-							speed = 17;
-							damage = 2;
-						} else {
-							speed = 20;
-							damage = 5;
+				for (ProjectileData pd : Player.Player().projectileArray) {
+					if (pd.shooting && pd.currentReload <= 0 && pd.type != ProjectileType.WAVE) {
+						pd.type.fireMechanics(root);
+						pd.currentReload = pd.maxReload;
+					} else if (pd.type == ProjectileType.WAVE) {
+						if (pd.currentReload >= 60) {
+							pd.type.fireMechanics(root);
 						}
 						
-						p.create(Player.Player(), i, null, speed, 0, damage, stra[0]);
-						p.body.setVisible(true);
-						root.getChildren().add(p.body);
+						if (pd.shooting && pd.currentReload <= 0) {
+							pd.currentReload = pd.maxReload;
+						}
 					}
-					Player.Player().projectileArray[0].currentReload = Player.Player().projectileArray[0].maxReload;
-				}
-				
-				if (Player.Player().projectileArray[1].shooting && Player.Player().projectileArray[1].currentReload <= 0) {
-					Projectile p = new Missile();
-					bulletArray.add(p);
-					Missile m = (Missile) p;
-					m.create(Player.Player(), null, 5, 7);
-					m.body.setVisible(true);
-					root.getChildren().add(m.body);
-					Player.Player().projectileArray[1].currentReload = Player.Player().projectileArray[1].maxReload;
-				}
-
-				if (Player.Player().projectileArray[2].shooting && Player.Player().projectileArray[2].currentReload <= 0) {
-					Projectile p = Projectile.getAvailable();
-					bulletArray.add(p);
-					p.create(Player.Player(), null, 40, 0, 50, stra[1]);
-					p.body.setVisible(true);
-					root.getChildren().add(p.body);
-					Player.Player().projectileArray[2].currentReload = Player.Player().projectileArray[2].maxReload;
-				}
-				
-				if (Player.Player().projectileArray[3].shooting && Player.Player().projectileArray[3].currentReload <= 0) {
-					Player.Player().projectileArray[3].currentReload = Player.Player().projectileArray[3].maxReload;
-				}
-
-				if (Player.Player().projectileArray[3].currentReload >= 60) {
-					Projectile p = Projectile.getAvailable();
-					Projectile q = Projectile.getAvailable();
-					bulletArray.add(q);
-					bulletArray.add(p);
-					p.create(Player.Player(), 45, null, 4 + Math.floor(Math.random() * Math.floor(17)), 45, 2, stra[3]);
-					q.create(Player.Player(), 315, null, 4 + Math.floor(Math.random() * Math.floor(17)), 45, 2, stra[3]);
-					p.body.setVisible(true);
-					q.body.setVisible(true);
-					root.getChildren().addAll(q.body,p.body);
 				}
 				
 				while (true) {
 					int tempX = Chunk.shiftXAxis(Player.Player().xPos, Player.Player().xCurrent, Player.Player().yCurrent, root);
 					int tempY = Chunk.shiftYAxis(Player.Player().yPos, Player.Player().xCurrent, Player.Player().yCurrent, root);
+					
 					if (tempX == 0 && tempY == 0) {
 						break;
 					}
+					
 					Player.Player().xCurrent += tempX;
 					Player.Player().yCurrent += tempY;
 				}
@@ -173,139 +134,125 @@ public class Main extends Application {
 				
 				Player.Player().calculateVelocityAngle();
 				
-				for (Enemy e : enemyArray) {
-					if (e != null) {
-						e.changeAccel(e.turnToPlayer(), e.visualAngle);
-						
-						e.resistAccel = 0.001 * Math.abs(e.diagVelocity);
-						e.changeAccel(e.resistAccel, e.angle + 180);
-						
-						oldX = e.stopXVelocity();
-						oldY = e.stopYVelocity();
-						
-						e.diagVelocity = Math.sqrt(Math.pow(e.xVelocity, 2) + Math.pow(e.yVelocity, 2));
-						e.minMaxVelocity(e.maxSpeed, oldX, oldY);
-						
-						e.xPos += e.xVelocity;
-						e.yPos += e.yVelocity;
-						
-						e.update(xOffset, yOffset);
-						
-						if (e.lockedToPlayer() & e.fireBullet() & e.ecd <=0) {
-							Projectile p = Projectile.getAvailable();
-							bulletArray.add(p);
-							p.create(e, new Civilization(), 10, 5, 2, "laser_bullet.png");
-							p.body.setVisible(true);
-							root.getChildren().add(p.body);
-							e.ecd = e.cooldown;
-						}
+				for (Iterator<Enemy> itr = Enemy.inGameEnemies.iterator(); itr.hasNext();) {
+					Enemy e = itr.next();
+					
+					e.changeAccel(e.turnToPlayer(), e.visualAngle);
+					e.resistAccel = 0.001 * Math.abs(e.diagVelocity);
+					e.changeAccel(e.resistAccel, e.angle + 180);
+					
+					oldX = e.stopXVelocity();
+					oldY = e.stopYVelocity();
+					
+					e.diagVelocity = Math.sqrt(Math.pow(e.xVelocity, 2) + Math.pow(e.yVelocity, 2));
+					e.minMaxVelocity(e.maxSpeed, oldX, oldY);
+					
+					e.xPos += e.xVelocity;
+					e.yPos += e.yVelocity;
+					
+					e.update(xOffset, yOffset);
+					
+					if (e.lockedToPlayer() & e.fireBullet() & e.ecd <=0) {
+						Projectile p = Projectile.getAvailable();
+						Projectile.inGameBullets.add(p);
+						p.create(e, new Civilization(), 10, 5, 2, ProjectileType.LASER);
+						p.body.setVisible(true);
+						root.getChildren().add(p.body);
+						e.ecd = e.cooldown;
+					}
 
-						if(e.ecd > -5) e.ecd--;
-						
-						if (Player.Player().inGameFrames % 600 == 0) {
-							e.activateAbilities();
+					if (e.ecd > -5) {
+						e.ecd--;
+					}
+					
+					if (Player.Player().inGameFrames % 600 == 0) {
+						e.activateAbilities();
+					}
+					
+					for (EnemyAbility ea : e.abilities) {
+						if (e.abilityFrames[ea.ordinal()] != ea.maxFrames) {
+							e.abilityFrames[ea.ordinal()]--;
 						}
 						
-						for (EnemyAbility ea : e.abilities) {
-							if (e.abilityFrames[ea.ordinal()] != ea.maxFrames) {
-								e.abilityFrames[ea.ordinal()]--;
-							}
+						if (e.abilityFrames[ea.ordinal()] <= 0) {
+							e.abilityFrames[ea.ordinal()] = ea.maxFrames;
 							
-							if (e.abilityFrames[ea.ordinal()] <= 0) {
-								e.abilityFrames[ea.ordinal()] = ea.maxFrames;
-								
-								switch (ea) {
-									case SPEED_BOOST:
-										e.maxSpeed >>= 1;
-										e.turnSpeed >>= 1;
-										e.cooldown = 8;
-										e.body.setImage(new Image("enemy.png"));
-										break;
-								}
+							switch (ea) {
+								case SPEED_BOOST:
+									e.maxSpeed >>= 1;
+									e.turnSpeed >>= 1;
+									e.cooldown = 8;
+									e.body.setImage(Enemy.enemyImage);
+									break;
 							}
 						}
 					}
 				}
 
-				/*for (int i = missileArray.size() - 1; i >= 0; i--) {
-					Missile current = missileArray.get(i);
-					current.update(xOffset, yOffset);
-					current.body.toBack();
-					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
-						if((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null)){
-							Player.Player().health-=current.damage;
-							System.out.println(Player.Player().health);
-						}
-						current.body.setVisible(false);
-						root.getChildren().remove(current.body);
-						Missile.unusedBullets.push(current);
-						missileArray.remove(i);
-						continue;
-					}
-					for (int j = enemyArray.length - 1; j >= 0; j--) {
-						if (enemyArray[j] != null && current.body.getBoundsInParent().intersects(enemyArray[j].body.getBoundsInParent()) && current.home == null) {
-							enemyArray[j].health -= current.damage;
-							
-							if(enemyArray[j].health - current.damage <= 0){
-								Methods.setNodesVisible(false, enemyArray[j].getNodes());
-								enemyArray[j] = null;
-								Enemy.currentEnemies--;
-							}
-							
-							current.body.setVisible(false);
-							root.getChildren().remove(current.body);
-							Missile.unusedBullets.push(current);
-							missileArray.remove(i);
-							break;
-						}
-					}
-				}*/
-
-				for (int i = bulletArray.size() - 1; i >= 0; i--) {
-					Projectile current = bulletArray.get(i);
-					current.update(xOffset, yOffset);
-					current.body.toBack();
+				for (Iterator<Projectile> itr = Projectile.inGameBullets.iterator(); itr.hasNext();) {
+					Projectile p = itr.next();
+					p.update(xOffset, yOffset);
+					p.body.toBack();
 					
-					if ((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null) || current.lifeTimeFrames == 0) {
-						if((current.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && current.home != null)){
-							Player.Player().health -= current.damage;
+					if ((p.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && p.home != null) || p.lifeTimeFrames == 0) {
+						if ((p.body.getBoundsInParent().intersects(Player.Player().body.getBoundsInParent()) && p.home != null)){
+							Player.Player().health -= p.damage;
 							System.out.println(Player.Player().health);
 						}
-						current.body.setVisible(false);
-						root.getChildren().remove(current.body);
-						Projectile.unusedBullets.push(current);
-						bulletArray.remove(i);
+						
+						p.alive = false;
 						continue;
 					}
 					
-					for (int j = enemyArray.length - 1; j >= 0; j--) {
-						if (enemyArray[j] != null && current.body.getBoundsInParent().intersects(enemyArray[j].body.getBoundsInParent()) && current.home == null) {
-							enemyArray[j].health -= current.damage;
+					for (Iterator<Enemy> itr2 = Enemy.inGameEnemies.iterator(); itr2.hasNext();) {
+						Enemy e = itr2.next();
+						
+						if (p.body.getBoundsInParent().intersects(e.body.getBoundsInParent()) && p.home == null) {
+							e.health -= p.damage;
 							
-							if(enemyArray[j].health <= 0) {
-								Methods.setNodesVisible(false, enemyArray[j].getNodes());
-								Effect explo = new Effect();
-								explo.create(enemyArray[j].xPos, enemyArray[j].yPos);
-								Effect.explArray.add(explo);
-								root.getChildren().add(explo.explosion);
-								enemyArray[j] = null;
-								Enemy.currentEnemies--;
+							if (e.health <= 0) {
+								e.alive = false;
 							}
 							
-							current.body.setVisible(false);
-							root.getChildren().remove(current.body);
-							Projectile.unusedBullets.push(current);
-							bulletArray.remove(i);
+							p.alive = false;
 							break;
 						}
 					}
 				}
 				
-				for (int i = Effect.explArray.size() - 1; i >= 0; i--) {
-					if (Effect.explArray.get(i).update(xOffset, yOffset)) {
-						Effect.explArray.get(i).explosion.setVisible(false);
-						root.getChildren().remove(Effect.explArray.get(i).explosion);
-						Effect.explArray.remove(i);
+				for (Iterator<Enemy> itr = Enemy.inGameEnemies.iterator(); itr.hasNext();) {
+					Enemy e = itr.next();
+					
+					if (!e.alive) {
+						Methods.setNodesVisible(false, e.getNodes());
+						Effect explo = Effect.getAvailable();
+						explo.create(e.xPos, e.yPos);
+						Effect.inGameEffects.add(explo);
+						root.getChildren().add(explo.explosion);
+						itr.remove();
+						Enemy.currentEnemies--;
+					}
+				}
+				
+				for (Iterator<Projectile> itr = Projectile.inGameBullets.iterator(); itr.hasNext();) {
+					Projectile p = itr.next();
+					
+					if (!p.alive) {
+						p.body.setVisible(false);
+						root.getChildren().remove(p.body);
+						Projectile.unusedBullets.push(p);
+						itr.remove();
+					}
+				}
+				
+				for (Iterator<Effect> itr = Effect.inGameEffects.iterator(); itr.hasNext();) {
+					Effect e = itr.next();
+					
+					if (e.update(xOffset, yOffset)) {
+						e.explosion.setVisible(false);
+						root.getChildren().remove(e.explosion);
+						Effect.unusedEffects.push(e);
+						itr.remove();
 					}
 				}
 				

@@ -8,27 +8,34 @@ public class Projectile {
 	int angle, penetration, maxLifeTime, lifeTimeFrames;
 	int damage;
 	double diagVelocity, xVelocity, yVelocity, xPos, yPos;
-	BulletSize size;
+	boolean alive;
 	ImageView body;
 	Civilization home;
 	
+	public static Image[] bulletImages;
+	public static Deque<Projectile> inGameBullets;
 	public static Deque<Projectile> unusedBullets;
 	
 	static {
+		bulletImages = new Image[4];
+		bulletImages[0] = new Image("laser_bullet.png");
+		bulletImages[1] = new Image("missile.gif");
+		bulletImages[2] = new Image("sniper_bullet.png");
+		bulletImages[3] = new Image("wave.png");
+		inGameBullets = new ArrayDeque<>();
 		unusedBullets = new ArrayDeque<>();
 	}
 	
 	public Projectile() {
-		size = null;
 		body = new ImageView();
 	}
 	
-	public void create(Ship owner, Civilization source, double speed, int spread, int damage, String src) {
+	public void create(Ship owner, Civilization source, double speed, int spread, int damage, ProjectileType type) {
 		
 		if (spread == 0) {
 			angle = owner.visualAngle;
 		} else {
-			angle = Methods.randInt(owner.visualAngle - spread, owner.visualAngle + spread);
+			angle = owner.visualAngle + Methods.randInt(-spread, spread);
 		}
 
 		this.damage = damage;
@@ -40,21 +47,22 @@ public class Projectile {
 		diagVelocity = speed;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
-		body.setImage(new Image(src));
+		alive = true;
+		body.setImage(bulletImages[type.ordinal()]);
 		body.setRotate(angle);
 		home = source;
 	}
 
-	public void create(Ship owner, int offSet, Civilization source, double speed, int spread, int damage, String src) {
+	public void create(Ship owner, int offSet, Civilization source, double speed, int spread, int damage, ProjectileType type) {
 		int newAngle;
 		
 		if (spread == 0) {
 			newAngle = owner.visualAngle + offSet;
 		} else {
-			newAngle = Methods.randInt(owner.visualAngle + offSet - spread, owner.visualAngle + offSet + spread);
+			newAngle = owner.visualAngle + offSet + Methods.randInt(-spread, spread);
 		}
 		
-		create(owner, source, speed, spread, damage, src);
+		create(owner, source, speed, spread, damage, type);
 		angle = newAngle;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));

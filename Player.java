@@ -45,10 +45,10 @@ public class Player extends Ship {
 		reloadFrames = maxReload;
 		maxSpeed = 5;
 		
-		projectileArray[0].maxReload = 10;
-		projectileArray[1].maxReload = 25;
-		projectileArray[2].maxReload = 30;
-		projectileArray[3].maxReload = 90;
+		projectileArray[0].create(10, ProjectileType.LASER);
+		projectileArray[1].create(25, ProjectileType.MISSILE);
+		projectileArray[2].create(30, ProjectileType.SNIPER);
+		projectileArray[3].create(90, ProjectileType.WAVE);
 		
 		bounds.setX(400);
 		bounds.setY(200);
@@ -59,7 +59,8 @@ public class Player extends Ship {
 	}
 	
 	public void calculateVisualAngle(double xMouse, double yMouse) {
-		if(!keyboardMode){
+		
+		if (!keyboardMode) {
 			double tempTargetAngle = Math.atan2(yMouse - body.getLayoutY() - (body.getLayoutBounds().getHeight() * 0.5),xMouse - body.getLayoutX() - (body.getLayoutBounds().getWidth() * 0.5)) + Math.PI / 2.0;
 			int tempAngle = Math.floorMod((int) Math.round(Math.toDegrees(tempTargetAngle)), 360);
 			
@@ -75,6 +76,7 @@ public class Player extends Ship {
 			
 			visualAngle = Math.floorMod(visualAngle, 360);
 		}
+		
 	}
 	
 	public Node[] getNodes() {
@@ -99,121 +101,141 @@ public class Player extends Ship {
 		scene.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			
 			@Override
-
 			public void handle(MouseEvent event) {
 
-					if (event.getButton() == MouseButton.PRIMARY && !keyboardMode) {
-						Player().accelerating = true;
-						System.out.println(keyboardMode);
-					} else if (event.getButton() == MouseButton.SECONDARY && !keyboardMode) {
-						Player().shooting = true;
-					}
+				if (event.getButton() == MouseButton.PRIMARY && !keyboardMode) {
+					Player().accelerating = true;
+					System.out.println(keyboardMode);
+				} else if (event.getButton() == MouseButton.SECONDARY && !keyboardMode) {
+					Player().shooting = true;
+				}
+				
 			}
+			
 		});
 		
 		scene.addEventHandler(MouseEvent.MOUSE_RELEASED, new EventHandler<MouseEvent>() {
 			
 			@Override
 			public void handle(MouseEvent event) {
-				if(!keyboardMode){
+				
+				if (!keyboardMode) {
 					if (event.getButton() == MouseButton.PRIMARY) {
 						Player().accelerating = false;
 					}
 				}
+				
 			}
+			
 		});
 		
 		scene.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
 			@Override
 			
 			public void handle(MouseEvent event) {
-				if(!keyboardMode){
+				
+				if (!keyboardMode) {
 					Main.xMousePos = event.getX();
 					Main.yMousePos = event.getY();
 				}
+				
 			}
+			
 		});
 		
 		scene.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
 			@Override
 			
 			public void handle(MouseEvent event) {
-				if(!keyboardMode){
+				
+				if (!keyboardMode) {
 					Main.xMousePos = event.getX();
 					Main.yMousePos = event.getY();
 				}
+				
 			}
+			
 		});
 
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			
 			@Override
 			public void handle(KeyEvent event) {
-					switch (event.getCode()) {
-						case S:
-							Methods.saveGameState();
-							break;
-						case R:
-							for (int i = 0; i < Chunk.allSaves.length; i++) {
-								if (Chunk.allSaves[i] != null) {
-									Chunk.allSaves[i].delete();
-									Chunk.allSaves[i] = null;
-								}
+				switch (event.getCode()) {
+					case S:
+						Methods.saveGameState();
+						break;
+					case R:
+						for (int i = 0; i < Chunk.allSaves.length; i++) {
+							if (Chunk.allSaves[i] != null) {
+								Chunk.allSaves[i].delete();
+								Chunk.allSaves[i] = null;
 							}
-							break;
-						case LEFT:
-							if (Player().keyboardMode) {
-								Player().turnLeft = true;
-							}
-							break;
-						case RIGHT:
-							if (Player().keyboardMode) {
-								Player().turnRight = true;
-							}
-							break;
-						case UP:
-							if (Player().keyboardMode) {
-								Player().accelerating = true;
-							}
-							break;
-						case Z:
-							Player().projectileArray[0].shooting = true;
-							break;
-						case X:
-							Player().projectileArray[1].shooting = true;
-							break;
-						case C:
-							Player().projectileArray[2].shooting = true;
-							break;
-						case V:
-							Player().projectileArray[3].shooting = true;
-							break;
-						case K:
-							keyboardMode = !keyboardMode;
-							break;
-					}
+						}
+						
+						break;
+					case LEFT:
+						if (Player().keyboardMode) {
+							Player().turnLeft = true;
+						}
+						
+						break;
+					case RIGHT:
+						if (Player().keyboardMode) {
+							Player().turnRight = true;
+						}
+						
+						break;
+					case UP:
+						if (Player().keyboardMode) {
+							Player().accelerating = true;
+						}
+						
+						break;
+					case Z:
+						Player().projectileArray[0].shooting = true;
+						break;
+					case X:
+						Player().projectileArray[1].shooting = true;
+						break;
+					case C:
+						Player().projectileArray[2].shooting = true;
+						break;
+					case V:
+						Player().projectileArray[3].shooting = true;
+						break;
+					case K:
+						keyboardMode = !keyboardMode;
+						break;
+				}
+				
 			}
+			
 		});
 		
 		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
 			
 			@Override
 			public void handle(KeyEvent event) {
+				
 				switch (event.getCode()) {
 					case LEFT:
 						if (Player().keyboardMode) {
 							Player().turnLeft = false;
 						}
+						
 						break;
 					case RIGHT:
 						if (Player().keyboardMode) {
 							Player().turnRight = false;
 						}
+						
 						break;
 					case UP:
 						if (Player().keyboardMode) {
 							Player().accelerating = false;
 						}
+						
 						break;
 					case Z:
 						Player().projectileArray[0].shooting = false;
@@ -228,7 +250,9 @@ public class Player extends Ship {
 						Player().projectileArray[3].shooting = false;
 						break;
 				}
+				
 			}
+			
 		});
 		
 	}

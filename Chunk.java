@@ -27,15 +27,19 @@ public class Chunk {
 			int sum1 = Math.abs(c1.xCoord) + Math.abs(c1.yCoord);
 			int sum2 = Math.abs(c2.xCoord) + Math.abs(c2.yCoord);
 			
-			if (c1.xCoord == c2.xCoord && c1.yCoord == c2.yCoord)
+			if (c1.xCoord == c2.xCoord && c1.yCoord == c2.yCoord) {
 				return 0;
-			if (sum1 - sum2 != 0)
-				return sum1 - sum2;
+			}
 			
-			if (c1.xCoord == c2.xCoord)
+			if (sum1 - sum2 != 0) {
+				return sum1 - sum2;
+			}
+			
+			if (c1.xCoord == c2.xCoord) {
 				return c1.yCoord - c2.yCoord;
-			else
+			} else {
 				return c1.xCoord - c2.xCoord;
+			}
 			
 		});
 		
@@ -43,7 +47,6 @@ public class Chunk {
 		r = new SecureRandom();
 		seed = randString(8);
 		allSaves = new File[6];
-		//Arrays.fill(allSaves, new File());
 	}
 	
 	int xCoord, yCoord, hash;
@@ -163,7 +166,7 @@ public class Chunk {
 	public static String randString(int length) {
 		StringBuilder sb = new StringBuilder(length);
 		
-		for(int i = 0; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			sb.append(allCharacters.charAt(r.nextInt(allCharacters.length())));
 		}
 			
@@ -173,11 +176,9 @@ public class Chunk {
 	public static int getSaveNumber() {
 		
 		for (int i = 0; i < allSaves.length; i++) {
-			
 			if (allSaves[i] == null) {
 				return i;
 			}
-			
 		}
 		
 		return -1;

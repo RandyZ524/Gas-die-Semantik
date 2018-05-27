@@ -1,18 +1,35 @@
 import javafx.scene.image.Image;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class Enemy extends Ship {
 	int angleToPlayer;
 	int ecd = 0;
 	int cooldown = 8;
-	int health = /*50*/1;
+	int health = 50;
 	double detectionRange;
+	boolean alive;
 	Civilization home;
 	EnemyType clazz;
 	EnemyAbility[] abilities;
 	int[] abilityFrames;
 	
-	public static int maxEnemies = 1000;
-	public static int currentEnemies = maxEnemies;
+	public static int maxEnemies;
+	public static int currentEnemies;
+	public static Image enemyImage;
+	public static Image enemyBoostImage;
+	public static Deque<Enemy> inGameEnemies;
+	public static Deque<Enemy> unusedEnemies;
+	
+	static {
+		maxEnemies = 100;
+		currentEnemies = maxEnemies;
+		enemyImage = new Image("enemy.png");
+		enemyBoostImage = new Image("enemy_boosting.png");
+		inGameEnemies = new ArrayDeque<>();
+		unusedEnemies = new ArrayDeque<>();
+	}
 	
 	public Enemy() {
 		super();
@@ -25,7 +42,8 @@ public class Enemy extends Ship {
 	public void create() {
 		maxReload = 600;
 		reloadFrames = Methods.randInt(0, maxReload);
-		body.setImage(new Image("enemy.png"));
+		alive = true;
+		body.setImage(enemyImage);
 		
 		for (int i = 0; i < abilityFrames.length; i++) {
 			abilityFrames[i] = abilities[i].maxFrames;
@@ -50,13 +68,13 @@ public class Enemy extends Ship {
 	}
 	
 	public boolean fireBullet() {
-		/*reloadFrames--;
+		reloadFrames--;
 		
 		if (reloadFrames < 0) {
 			reloadFrames = Enemy.currentEnemies;
 			return true;
 		}
-		*/
+		
 		return false;
 	}
 	
@@ -99,14 +117,21 @@ public class Enemy extends Ship {
 						maxSpeed <<= 1;
 						turnSpeed <<= 1;
 						cooldown = 2;
-						body.setImage(new Image("enemy_boosting.png"));
+						body.setImage(enemyBoostImage);
 						break;
 				}
-				
 			}
-			
 		}
 		
+	}
+	
+	public static Enemy getAvailable() {
+		
+		if (Enemy.unusedEnemies.isEmpty()) {
+			return new Enemy();
+		}
+		
+		return Enemy.unusedEnemies.pop();
 	}
 	
 }

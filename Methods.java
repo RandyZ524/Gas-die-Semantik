@@ -27,8 +27,11 @@ abstract public class Methods {
 		for (int i = 0; i < Chunk.allSaves.length; i++) {
 			File f = new File("Save_" + i + ".txt");
 			
-			if (f.exists()) Chunk.allSaves[i] = f;
-			else return;
+			if (f.exists()) {
+				Chunk.allSaves[i] = f;
+			} else {
+				return;
+			}
 		}
 		
 	}
@@ -37,7 +40,6 @@ abstract public class Methods {
 		int saveNum = Chunk.getSaveNumber();
 		
 		if (saveNum == -1) {
-			
 			try {
 				shiftSaves();
 			} catch (IOException ioe) {
@@ -66,21 +68,24 @@ abstract public class Methods {
 				Chunk.loadedChunks.add(c);
 				root.getChildren().addAll(c.getNodes());
 			}
-			
 		}
 		
 	}
 	
 	public static void offsetScreen(Player p) {
-		if (p.body.getLayoutX() + (0.5 * p.body.getLayoutBounds().getWidth()) < 400)
-			Main.xOffset = p.xPos - 400;
-		else if (p.body.getLayoutX() + (0.5 * p.body.getLayoutBounds().getWidth()) > 600)
-			Main.xOffset = p.xPos - 600;
 		
-		if (p.body.getLayoutY() + (0.5 * p.body.getLayoutBounds().getHeight()) < 200)
+		if (p.body.getLayoutX() + (0.5 * p.body.getLayoutBounds().getWidth()) < 400) {
+			Main.xOffset = p.xPos - 400;
+		} else if (p.body.getLayoutX() + (0.5 * p.body.getLayoutBounds().getWidth()) > 600) {
+			Main.xOffset = p.xPos - 600;
+		}
+		
+		if (p.body.getLayoutY() + (0.5 * p.body.getLayoutBounds().getHeight()) < 200) {
 			Main.yOffset = p.yPos - 200;
-		else if (p.body.getLayoutY() + (0.5 * p.body.getLayoutBounds().getHeight()) > 400)
+		} else if (p.body.getLayoutY() + (0.5 * p.body.getLayoutBounds().getHeight()) > 400) {
 			Main.yOffset = p.yPos - 400;
+		}
+		
 	}
 	
 	public static void setNodesVisible(boolean visible, Node... nodes) {

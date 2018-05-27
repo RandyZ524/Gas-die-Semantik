@@ -29,7 +29,8 @@ public class Missile extends Projectile {
 		diagVelocity = speed;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
-		body.setImage(new Image("missile.gif"));
+		alive = true;
+		body.setImage(bulletImages[1]);
 		body.setRotate(angle);
 		home = source;
 	}
@@ -39,7 +40,7 @@ public class Missile extends Projectile {
 		yPos += yVelocity;
 		xVelocity *= accel;
 		yVelocity *= accel;
-		//accel+=0.002;
+		
 		if (Math.sqrt(Math.pow(xVelocity, 2)+ Math.pow(yVelocity, 2)) > 55) {
 			accel = 1;
 		}
