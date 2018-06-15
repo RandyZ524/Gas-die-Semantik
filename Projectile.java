@@ -1,8 +1,7 @@
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Projectile {
 	int angle, penetration, maxLifeTime, lifeTimeFrames;
@@ -11,11 +10,11 @@ public class Projectile {
 	boolean alive;
 	ImageView body;
 	Civilization home;
-	
+
 	public static Image[] bulletImages;
 	public static Deque<Projectile> inGameBullets;
 	public static Deque<Projectile> unusedBullets;
-	
+
 	static {
 		bulletImages = new Image[4];
 		bulletImages[0] = new Image("laser_bullet.png");
@@ -25,13 +24,18 @@ public class Projectile {
 		inGameBullets = new ArrayDeque<>();
 		unusedBullets = new ArrayDeque<>();
 	}
-	
+
 	public Projectile() {
 		body = new ImageView();
 	}
-	
-	public void create(Ship owner, Civilization source, double speed, int spread, int damage, ProjectileType type) {
-		
+
+	public void create(
+			Ship owner,
+			Civilization source,
+			double speed,
+			int spread, int damage,
+			ProjectileType type) {
+
 		if (spread == 0) {
 			angle = owner.visualAngle;
 		} else {
@@ -53,22 +57,28 @@ public class Projectile {
 		home = source;
 	}
 
-	public void create(Ship owner, int offSet, Civilization source, double speed, int spread, int damage, ProjectileType type) {
+	public void create(
+			Ship owner,
+			int offSet,
+			Civilization source,
+			double speed,
+			int spread, int damage,
+			ProjectileType type) {
 		int newAngle;
-		
+
 		if (spread == 0) {
 			newAngle = owner.visualAngle + offSet;
 		} else {
 			newAngle = owner.visualAngle + offSet + Methods.randInt(-spread, spread);
 		}
-		
+
 		create(owner, source, speed, spread, damage, type);
 		angle = newAngle;
 		xVelocity = diagVelocity * Math.sin(Math.toRadians(angle));
 		yVelocity = -diagVelocity * Math.cos(Math.toRadians(angle));
 		body.setRotate(angle);
 	}
-	
+
 	public void update(double xOffset, double yOffset) {
 		xPos += xVelocity;
 		yPos += yVelocity;
@@ -76,14 +86,13 @@ public class Projectile {
 		body.setLayoutY(yPos - 0.5 * body.getLayoutBounds().getHeight() - yOffset);
 		lifeTimeFrames--;
 	}
-	
+
 	public static Projectile getAvailable() {
-		
+
 		if (Projectile.unusedBullets.isEmpty()) {
 			return new Projectile();
 		}
-		
+
 		return Projectile.unusedBullets.pop();
 	}
-	
 }
