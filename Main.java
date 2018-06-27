@@ -48,8 +48,12 @@ public class Main extends Application {
 		
 			@Override
 			public void handle(long now) {
+				for (Iterator<Collision> itr = Collision.inGameCollisions.iterator(); itr.hasNext(); ) {
+					Collision c = itr.next();
+					System.out.println(c.entity1 + ", " + c.entity2);
+				}
 				
-				if (Player.Player().inGameFrames % 120 == 0 && Enemy.currentEnemies < 100) {
+				/*if (Player.Player().inGameFrames % 120 == 0 && Enemy.currentEnemies < 100) {
 					Enemy e = Enemy.getAvailable();
 					Enemy.inGameEnemies.add(e);
 					e.setClassAttributes("Interceptor");
@@ -60,7 +64,7 @@ public class Main extends Application {
 					e.setDebug(false);
 					root.getChildren().addAll(e.getNodes());
 					Enemy.currentEnemies++;
-				}
+				}*/
 
 				if (Player.Player().health <= 0) {
 					System.exit(0);
@@ -87,7 +91,7 @@ public class Main extends Application {
 					Player.Player().changeAccel(0.005, Player.Player().visualAngle);
 				}
 
-				Player.Player().resistAccel = 0.001 * Math.abs(Player.Player().diagVelocity);
+				Player.Player().resistAccel = 0.001 * Player.Player().diagVelocity;
 				Player.Player().changeAccel(Player.Player().resistAccel, Player.Player().angle + 180);
 				double oldX = Player.Player().stopXVelocity();
 				double oldY = Player.Player().stopYVelocity();
@@ -155,7 +159,7 @@ public class Main extends Application {
 					Enemy e = itr.next();
 
 					e.changeAccel(e.turnToPlayer(), e.visualAngle);
-					e.resistAccel = 0.001 * Math.abs(e.diagVelocity);
+					e.resistAccel = 0.001 * e.diagVelocity;
 					e.changeAccel(e.resistAccel, e.angle + 180);
 
 					oldX = e.stopXVelocity();
@@ -228,7 +232,8 @@ public class Main extends Application {
 
 						if (p.body.getBoundsInParent().intersects(e.body.getBoundsInParent())
 								&& p.home == null
-								&& e.alive) {
+								&& e.alive
+								&& Collision.checkUnique(p.uniqueID, e.uniqueID)) {
 							e.health -= p.damage;
 							p.penetration--;
 
@@ -239,7 +244,8 @@ public class Main extends Application {
 							if (p.penetration == 0) {
 								p.alive = false;
 							}
-
+							
+							Collision.addCollision(p.uniqueID, e.uniqueID);
 							continue projectileLoop;
 						}
 					}
@@ -250,13 +256,16 @@ public class Main extends Application {
 
 					if (!e.alive) {
 						Methods.setNodesVisible(false, e.getNodes());
-						/*Effect explo = Effect.getAvailable();
+						
+						Effect explo = Effect.getAvailable();
 						explo.create(e.xPos, e.yPos);
 						explo.explosion.setVisible(true);
 						Effect.inGameEffects.add(explo);
-						root.getChildren().add(explo.explosion);*/
+						root.getChildren().add(explo.explosion);
+						
 						Enemy.unusedEnemies.push(e);
 						root.getChildren().removeAll(e.getNodes());
+						Collision.removeEntityCollisions(e.uniqueID);
 						itr.remove();
 						Enemy.currentEnemies--;
 					}
@@ -272,7 +281,8 @@ public class Main extends Application {
 						if (!(p instanceof Missile)) {
 							Projectile.unusedBullets.push(p);
 						}
-
+						
+						Collision.removeEntityCollisions(p.uniqueID);
 						itr.remove();
 					}
 				}

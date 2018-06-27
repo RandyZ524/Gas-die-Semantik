@@ -38,7 +38,7 @@ public enum ProjectileType {
 					Projectile p = new Missile();
 					Projectile.inGameBullets.add(p);
 					Missile m = (Missile) p;
-					m.create(Player.Player(), null, 5, /*7*/ 0);
+					m.create(Player.Player(), null, 5, 7);
 					m.body.setVisible(true);
 					root.getChildren().add(m.body);
 				}
@@ -46,16 +46,11 @@ public enum ProjectileType {
 			}
 			case SNIPER:
 			{
-				int oldAngle = Player.Player().visualAngle;
-				for (int i = 0; i < 360; i++) {
-					Player.Player().visualAngle = oldAngle + i;
-					Projectile p = Projectile.getAvailable();
-					Projectile.inGameBullets.add(p);
-					p.create(Player.Player(), null, 40, 0, 50, ProjectileType.SNIPER);
-					p.body.setVisible(true);
-					root.getChildren().add(p.body);
-				}
-				Player.Player().visualAngle = oldAngle;
+				Projectile p = Projectile.getAvailable();
+				Projectile.inGameBullets.add(p);
+				p.create(Player.Player(), null, 40, 0, 50, ProjectileType.SNIPER);
+				p.body.setVisible(true);
+				root.getChildren().add(p.body);
 				break;
 			}
 			case WAVE:

@@ -10,6 +10,7 @@ public class Enemy extends Ship {
 	int ecd = 0;
 	int cooldown = 8;
 	int health = 50;
+	long uniqueID;
 	double detectionRange;
 	boolean alive;
 	Civilization home;
@@ -19,6 +20,7 @@ public class Enemy extends Ship {
 
 	public static int maxEnemies;
 	public static int currentEnemies;
+	public static long idCounter;
 	public static Image enemyImage;
 	public static Image enemyBoostImage;
 	public static Deque<Enemy> inGameEnemies;
@@ -27,6 +29,7 @@ public class Enemy extends Ship {
 	static {
 		maxEnemies = 100;
 		currentEnemies = maxEnemies;
+		idCounter = 0;
 		enemyImage = new Image("enemy.png");
 		enemyBoostImage = new Image("enemy_boosting.png");
 		inGameEnemies = new ArrayDeque<>();
@@ -35,6 +38,7 @@ public class Enemy extends Ship {
 
 	public Enemy() {
 		super();
+		uniqueID = idCounter++;
 		home = new Civilization();
 		clazz = null;
 		abilities = new EnemyAbility[3];
@@ -153,7 +157,7 @@ public class Enemy extends Ship {
 		if (Enemy.unusedEnemies.isEmpty()) {
 			e = new Enemy();
 		} else {
-			e = Enemy.unusedEnemies.removeLast();
+			e = Enemy.unusedEnemies.pop();
 		}
 		
 		e.body.setLayoutX(2000);

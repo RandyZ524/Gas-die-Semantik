@@ -6,16 +6,19 @@ import javafx.scene.image.ImageView;
 public class Projectile {
 	int angle, penetration, maxLifeTime, lifeTimeFrames;
 	int damage;
+	long uniqueID;
 	double diagVelocity, xVelocity, yVelocity, xPos, yPos;
 	boolean alive;
 	ImageView body;
 	Civilization home;
-
+	
+	public static long idCounter;
 	public static Image[] bulletImages;
 	public static Deque<Projectile> inGameBullets;
 	public static Deque<Projectile> unusedBullets;
 
 	static {
+		idCounter = 0;
 		bulletImages = new Image[4];
 		bulletImages[0] = new Image("laser_bullet.png");
 		bulletImages[1] = new Image("missile.gif");
@@ -26,6 +29,7 @@ public class Projectile {
 	}
 
 	public Projectile() {
+		uniqueID = idCounter++;
 		body = new ImageView();
 	}
 
@@ -89,10 +93,10 @@ public class Projectile {
 
 	public static Projectile getAvailable() {
 
-		if (Projectile.unusedBullets.isEmpty()) {
+		if (unusedBullets.isEmpty()) {
 			return new Projectile();
 		}
 
-		return Projectile.unusedBullets.pop();
+		return unusedBullets.pop();
 	}
 }
